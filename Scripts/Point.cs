@@ -1,8 +1,13 @@
-﻿using System.Collections;
+﻿/// Author: Paulo Camacan (N0bode)
+/// License: GNU
+/// Last Modified: 02/16/18
+/// Unity Version: 5.6.2f1 Personal
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace nWayPoint
+namespace WayPoint
 {
 	[System.Serializable]
 	public sealed class Point

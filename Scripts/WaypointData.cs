@@ -1,9 +1,14 @@
-﻿using System.Collections;
+﻿/// Author: Paulo Camacan (N0bode)
+/// License: GNU
+/// Last Modified: 02/16/18
+/// Unity Version: 5.6.2f1 Personal
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace nWayPoint
+namespace WayPoint
 {
 	[System.Serializable]
 	public class WaypointData : ScriptableObject, IEnumerable
@@ -86,6 +91,22 @@ namespace nWayPoint
 			for(int i = 0; i < this.length; i++)
 			{
 				if(this.m_points[i].id == point.id)
+				{
+					jump++;
+				}
+				this.m_points[i] = saved[i + jump];
+			}
+		}
+			
+		public void RemovePoint(int index)
+		{
+			Point[] saved = this.m_points;
+			int jump = 0;
+
+			Array.Resize<Point>(ref this.m_points, this.length - 1);
+			for(int i = 0; i < this.length; i++)
+			{
+				if(i == index)
 				{
 					jump++;
 				}

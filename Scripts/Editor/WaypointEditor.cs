@@ -1,15 +1,20 @@
-﻿using System.Collections;
+﻿/// Author: Paulo Camacan (N0bode)
+/// License: GNU
+/// Last Modified: 02/16/18
+/// Unity Version: 5.6.2f1 Personal
+
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
-using nWayPoint;
+using WayPoint;
 
-namespace nWayPointEditor
+namespace WayPointEditor
 {
-	[CustomEditor(typeof(Waypoint))]
-	public class WaypointEditor : Editor
+	[CustomEditor(typeof(WaypointManager))]
+	public class WaypointManagerEditor : Editor
 	{
 		[System.Flags]
 		enum RTool : short
@@ -21,24 +26,25 @@ namespace nWayPointEditor
 		}
 
 		private ReorderableList m_relist;
-		private Waypoint m_waypoint;
+		private WaypointManager m_waypoint;
 		private RTool m_tool;
 		private RTool m_lastTool;
 
 		private bool m_editable;
+		[SerializeField]
 		private int m_index = -1;
 
 		#region MonoBehaviour Callbacks
 		void OnEnable()
 		{
 			Tools.hidden = false;
-			this.m_waypoint = (Waypoint)this.target;
+			this.m_waypoint = (WaypointManager)this.target;
 			if(this.m_waypoint.waypointData != null)
 			{
 				this.BuildList();
 				this.m_waypoint.drawTrail = false;
 			}
-		
+			Undo.undoRedoPerformed += this.OnUndoRedo;
 		}
 
 		void OnDisable()
@@ -46,6 +52,14 @@ namespace nWayPointEditor
 			Tools.hidden = false;
 			this.m_waypoint.drawTrail = true;
 		}
+
+		void OnUndoRedo()
+		{
+			this.m_relist.index = this.m_index;
+			this.Repaint ();
+			this.BuildList ();
+		}
+
 		#endregion
 
 		#region ReorderList Callbacks
@@ -86,6 +100,7 @@ namespace nWayPointEditor
 
 		void OnAddPoint(ReorderableList list)
 		{
+			Undo.RecordObjects (new Object[]{this.m_waypoint.waypointData, this}, "Duplicate Point");
 			if(this.m_waypoint.waypointData.length < 1)
 			{
 				this.m_waypoint.waypointData.AddPoint(new Point()).name = "Point";
@@ -101,6 +116,7 @@ namespace nWayPointEditor
 
 		void OnRemovePoint(ReorderableList list)
 		{
+			Undo.RecordObjects (new Object[]{this.m_waypoint.waypointData, this}, "Remove Point");
 			this.m_waypoint.waypointData.RemovePoint(this.m_waypoint.waypointData[list.index]);
 			this.m_index = (this.m_waypoint.waypointData.length == 0) ? -1 : ((this.m_index > 0) ? this.m_index - 1 : 0);
 			this.BuildList();
@@ -114,6 +130,7 @@ namespace nWayPointEditor
 
 			this.m_index = list.index;
 			this.m_editable = false;
+			Tools.hidden = true;
 			if(this.m_tool == RTool.VIEW || this.m_tool == RTool.SETTINGS)
 				this.m_tool = RTool.MOVE;
 		}
@@ -222,7 +239,7 @@ namespace nWayPointEditor
 		}
 
 		//Show the Settings in Interface
-		void DrawSettings()
+		private void DrawSettings()
 		{
 			GUILayout.BeginVertical (GUI.skin.box);
 			this.m_waypoint.trailColor = EditorGUILayout.ColorField ("Trail Color", this.m_waypoint.trailColor);
@@ -245,8 +262,7 @@ namespace nWayPointEditor
 		{
 			Event evt = Event.current;
 			EditorGUILayout.Space ();
-			EditorGUI.BeginChangeCheck ();
-			WaypointData waypointData = (WaypointData)EditorGUILayout.ObjectField ("WayPointData", this.m_waypoint.waypointData, typeof(WaypointData), true);
+			this.m_waypoint.waypointData = (WaypointData)EditorGUILayout.ObjectField ("WayPointData", this.m_waypoint.waypointData, typeof(WaypointData), true);
 			EditorGUILayout.Space ();
 			if(this.m_waypoint.waypointData != null)
 			{
@@ -267,13 +283,26 @@ namespace nWayPointEditor
 				GUILayout.Space(5);
 				GUILayout.EndVertical();
 				EditorUtility.SetDirty (this.m_waypoint.waypointData);
+
+				if(evt.type == EventType.ValidateCommand)
+				{
+					if(evt.commandName == "Duplicate")
+					{
+						this.OnAddPoint (this.m_relist);
+						evt.Use ();
+					}
+					else if(evt.commandName == "SoftDelete")
+					{
+						this.OnRemovePoint (this.m_relist);
+						evt.Use ();
+					}
+				}
+			}
+			else
+			{
+				GUILayout.TextArea ("You need to create a WaypointData!\n To do that, just you go Assets->Create->WayPointData", new GUIStyle("helpbox"));
 			}
 
-			if(EditorGUI.EndChangeCheck())
-			{
-				Undo.RecordObject (target, "UndoRec");
-				this.m_waypoint.waypointData = waypointData;
-			}
 		}
 		#endregion
 
@@ -322,6 +351,7 @@ namespace nWayPointEditor
 					{
 						this.m_index = index;
 						this.m_relist.index = index;
+						Tools.hidden = true;
 						this.Repaint ();
 					}
 				}
@@ -420,12 +450,26 @@ namespace nWayPointEditor
 					//Recording Undo
 					if(EditorGUI.EndChangeCheck())
 					{
-						Undo.RecordObject (this.m_waypoint.waypointData, "PointModif");
+						Undo.RecordObjects (new Object[]{this.m_waypoint.waypointData, this}, "Point Modify");
 						this.m_waypoint.waypointData[i] = np;
 						this.Repaint();
 					}
 				}
 				Handles.color = Color.white;
+
+				if(evt.type == EventType.ExecuteCommand)
+				{
+					if(evt.commandName == "Duplicate")
+					{
+						this.OnAddPoint (this.m_relist);	
+						evt.Use ();
+					}
+					else if(evt.commandName == "SoftDelete")
+					{
+						this.OnRemovePoint (this.m_relist);
+						evt.Use ();
+					}
+				}
 			}
 		}
 		#endregion
@@ -434,12 +478,12 @@ namespace nWayPointEditor
 		private static string GetNameAsset()
 		{
 			string path = AssetDatabase.GetAssetPath (Selection.activeObject);
-
-			if (!AssetDatabase.IsValidFolder (path))
-				path = Path.GetDirectoryName (path);
+			path = (string.IsNullOrEmpty (path) ? "Assets/" : path);
+			string dataPath = Path.GetDirectoryName (Application.dataPath);
+			string rpath = Path.Combine (dataPath, path);
 
 			int count = 0;
-			foreach(string nfile in Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Application.dataPath), path)))
+			foreach(string nfile in Directory.GetFiles(rpath))
 			{
 				string filename = Path.GetFileName (nfile);
 				if(filename.StartsWith("WayPointData") && filename.EndsWith(".asset"))
@@ -467,7 +511,7 @@ namespace nWayPointEditor
 		private static void CreateWaypoint ()
 		{
 			GameObject obj = new GameObject ();
-			obj.AddComponent<Waypoint> ();
+			obj.AddComponent<WaypointManager> ();
 			obj.name = "WayPoint";
 			Selection.activeGameObject = obj;
 
