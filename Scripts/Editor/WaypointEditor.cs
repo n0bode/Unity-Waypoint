@@ -499,7 +499,7 @@ namespace WayPointEditor
 			return Path.Combine (path, "WayPointData.asset");
 		}
 
-		[MenuItem("Assets/Create/WaypointData")]
+		[MenuItem("Waypoint/WaypointData")]
 		private static void CreateWaypointData ()
 		{
 			string path = GetNameAsset();
@@ -507,7 +507,7 @@ namespace WayPointEditor
 			AssetDatabase.CreateAsset(data, path);
 		}
 
-		[MenuItem("GameObject/Waypoint")]
+		[MenuItem("Waypoint/WaypointManager")]
 		private static void CreateWaypoint ()
 		{
 			GameObject obj = new GameObject ();
