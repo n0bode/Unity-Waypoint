@@ -1,5 +1,6 @@
 /// Author: Paulo Camacan (N0bode)
 /// Unity Version: 5.6.2f1
+/// Github Page: https://github.com/n0bode/Unity-Waypoint
 
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,14 @@ namespace WayPoint
 	[AddComponentMenu("Waypoint/WayPointAgent")]
 	public class WaypointAgent : MonoBehaviour
 	{
+		[System.Serializable]
+		public class AxisToggle
+		{
+			public bool x = true;
+			public bool y = true;
+			public bool z = true;
+		}
+
 		public WaypointManager manager;
 		public float factor = 0f;
 		public float speed = 1f;
@@ -19,6 +28,8 @@ namespace WayPoint
 		public float radius = 1f;
 		public bool completeTrail = true;
 		public bool loop = true;
+		public AxisToggle positionApply = new AxisToggle();
+		public AxisToggle rotationApply = new AxisToggle();
 		[HideInInspector]
 		public bool isStopped = false;
 
@@ -60,9 +71,25 @@ namespace WayPoint
 
 		public void OnChangePosition(Vector3 pos)
 		{
-			Vector3 lpos = this.manager.GetPositionOnTrail (this.m_factor, this.completeTrail);
-			this.SetPosition(pos);
-			this.transform.rotation = Quaternion.LookRotation (pos - lpos);
+			Vector3 lastPos = this.manager.GetPositionOnTrail (this.m_factor, this.completeTrail);
+			Vector3 eulerN = Quaternion.LookRotation(pos - lastPos).eulerAngles;
+
+			Vector3 cpos0 = new Vector3()
+			{
+				x = this.positionApply.x ? pos.x : this.transform.position.x,
+				y = this.positionApply.y ? pos.y : this.transform.position.y,
+				z = this.positionApply.z ? pos.z : this.transform.position.z
+			};
+
+			Vector3 cpos1 = new Vector3()
+			{
+				x = this.rotationApply.x ? eulerN.x : this.transform.eulerAngles.x,
+				y = this.rotationApply.y ? eulerN.y : this.transform.eulerAngles.y,
+				z = this.rotationApply.z ? eulerN.z : this.transform.eulerAngles.z
+			};
+
+			this.transform.position = cpos0;
+			this.transform.eulerAngles = cpos1;
 		}
 
 		public void SetPosition(Vector3 pos)
@@ -73,7 +100,7 @@ namespace WayPoint
 		void DrawCapsule(Vector3 pos, float height, float radius, Color color, int detail=6)
 		{
 			Color save = Gizmos.color;
-			Gizmos.matrix = Matrix4x4.TRS (pos, this.transform.rotation, Vector3.one);
+			Gizmos.matrix = Matrix4x4.TRS (pos, Quaternion.identity, Vector3.one);
 			Gizmos.color = color;
 			Vector3 offset = Vector3.up * height;
 			for(int i = 0; i < detail; i++)

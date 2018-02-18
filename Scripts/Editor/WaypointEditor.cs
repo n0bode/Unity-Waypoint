@@ -1,5 +1,6 @@
 /// Author: Paulo Camacan (N0bode)
 /// Unity Version: 5.6.2f1
+/// Github Page: https://github.com/n0bode/Unity-Waypoint
 
 using System.Collections;
 using System.Collections.Generic;
@@ -56,6 +57,7 @@ namespace WayPointEditor
 			Tools.hidden = false;
 			//Draw Gizmos Trail
 			this.m_waypoint.drawTrail = true;
+			Undo.undoRedoPerformed -= this.OnUndoRedo;
 		}
 
 		void OnUndoRedo()

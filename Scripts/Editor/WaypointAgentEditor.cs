@@ -1,5 +1,6 @@
 /// Author: Paulo Camacan (N0bode)
 /// Unity Version: 5.6.2f1
+/// Github Page: https://github.com/n0bode/Unity-Waypoint
 
 using System.Collections;
 using System.Collections.Generic;
@@ -20,12 +21,28 @@ namespace WayPointEditor
 			Undo.undoRedoPerformed += this.OnUndoRedo;
 		}
 
+		void OnDisable()
+		{
+			Undo.undoRedoPerformed -= this.OnUndoRedo;
+		}
+		
 		void OnUndoRedo()
 		{
 			if(self.manager != null)
 			{
 				self.UpdatePosition();
 			}
+		}
+
+		WaypointAgent.AxisToggle AxisToggleField(string label, WaypointAgent.AxisToggle field)
+		{
+			GUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField(label);
+			field.x = GUILayout.Toggle(field.x, "X");
+			field.y = GUILayout.Toggle(field.y, "Y");
+			field.z = GUILayout.Toggle(field.z, "Z");
+			GUILayout.EndHorizontal();
+			return field;
 		}
 
 		public override void OnInspectorGUI ()
@@ -39,6 +56,8 @@ namespace WayPointEditor
 			float height = EditorGUILayout.FloatField("Height", self.height);
 			float baseOffset = EditorGUILayout.FloatField("BaseOffset", self.baseOffset);
 			float radius = EditorGUILayout.FloatField("Radius", self.radius);
+			WaypointAgent.AxisToggle posGroup = this.AxisToggleField("Position Apply", self.positionApply);
+			WaypointAgent.AxisToggle rotGroup = this.AxisToggleField("Rotation Apply", self.rotationApply);
 			bool completeTrail = EditorGUILayout.Toggle("Complete Trail", self.completeTrail);
 			bool loop = EditorGUILayout.Toggle("Loop", self.loop);
 
@@ -75,7 +94,9 @@ namespace WayPointEditor
 				self.radius = radius;
 				self.completeTrail = completeTrail;
 				self.loop = loop;
-				self.UpdatePosition();
+				self.positionApply = posGroup;
+				self.rotationApply = rotGroup;
+				//self.UpdatePosition();
 			}
 		}
 	}

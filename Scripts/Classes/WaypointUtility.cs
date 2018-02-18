@@ -1,5 +1,6 @@
 /// Author: Paulo Camacan (N0bode)
 /// Unity Version: 5.6.2f1
+/// Github Page: https://github.com/n0bode/Unity-Waypoint
 
 using System.Collections;
 using System.Collections.Generic;
