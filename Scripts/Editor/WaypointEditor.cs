@@ -1,7 +1,5 @@
-﻿/// Author: Paulo Camacan (N0bode)
-/// License: GNU
-/// Last Modified: 02/16/18
-/// Unity Version: 5.6.2f1 Personal
+/// Author: Paulo Camacan (N0bode)
+/// Unity Version: 5.6.2f1
 
 using System.Collections;
 using System.Collections.Generic;
@@ -35,39 +33,51 @@ namespace WayPointEditor
 		private int m_index = -1;
 
 		#region MonoBehaviour Callbacks
+
 		void OnEnable()
 		{
+			//Show Unity's Controls
 			Tools.hidden = false;
+			//Parse Target to WaypointManager
 			this.m_waypoint = (WaypointManager)this.target;
 			if(this.m_waypoint.waypointData != null)
 			{
 				this.BuildList();
+				//Hide Gizmos Trail
 				this.m_waypoint.drawTrail = false;
 			}
+			//When Undo or Redo were called, it calls this methods
 			Undo.undoRedoPerformed += this.OnUndoRedo;
 		}
 
 		void OnDisable()
 		{
+			//Hide Unity's Controls
 			Tools.hidden = false;
+			//Draw Gizmos Trail
 			this.m_waypoint.drawTrail = true;
 		}
 
 		void OnUndoRedo()
 		{
-			this.m_relist.index = this.m_index;
-			this.Repaint ();
-			this.BuildList ();
+			//Rebuild list
+			if(this.m_relist != null)
+			{
+				this.m_relist.index = this.m_index;
+				this.Repaint ();
+				this.BuildList ();
+			}
 		}
-
 		#endregion
 
 		#region ReorderList Callbacks
+		//Callback Header of ReorderableList
 		void ListDrawHeader(Rect rect)
 		{
 			EditorGUI.LabelField(rect, new GUIContent("Points"));
 		}
 
+		//Callback Elements of ReorderableList
 		void ListElementDraw(Rect rect, int index, bool active, bool focused)
 		{
 			Event evt = Event.current;
@@ -98,6 +108,7 @@ namespace WayPointEditor
 			}
 		}
 
+		//Callback when a element is added to List
 		void OnAddPoint(ReorderableList list)
 		{
 			Undo.RecordObjects (new Object[]{this.m_waypoint.waypointData, this}, "Duplicate Point");
@@ -114,8 +125,10 @@ namespace WayPointEditor
 			this.Repaint();
 		}
 
+		//Callback when a element is removed from list
 		void OnRemovePoint(ReorderableList list)
 		{
+			//Record Changes to Undo
 			Undo.RecordObjects (new Object[]{this.m_waypoint.waypointData, this}, "Remove Point");
 			this.m_waypoint.waypointData.RemovePoint(this.m_waypoint.waypointData[list.index]);
 			this.m_index = (this.m_waypoint.waypointData.length == 0) ? -1 : ((this.m_index > 0) ? this.m_index - 1 : 0);
@@ -123,6 +136,7 @@ namespace WayPointEditor
 			this.Repaint();
 		}
 
+		//Callback when a element is selected
 		void OnSelectList(ReorderableList list)
 		{
 			if(this.m_index == list.index)
@@ -140,7 +154,7 @@ namespace WayPointEditor
 		//Build ReorderableList
 		void BuildList ()
 		{
-			if (this.m_waypoint.waypointData != null) 
+			if (this.m_waypoint.waypointData != null)
 			{
 				this.m_relist = new ReorderableList (this.m_waypoint.waypointData.m_points, typeof(Point));
 				this.m_relist.drawHeaderCallback = this.ListDrawHeader;
@@ -158,7 +172,8 @@ namespace WayPointEditor
 		{
 			return GUILayout.Toggle(value, content, style, options) != value;
 		}
-			
+
+		//Show the Control Panel of Tools
 		void DrawToolControls()
 		{
 			GUILayout.BeginHorizontal();
@@ -168,22 +183,25 @@ namespace WayPointEditor
 				this.m_tool = RTool.VIEW;
 				Tools.hidden = false;
 			}
-				
+
 			if(this.ButtonToggle((this.m_tool & RTool.MOVE) == RTool.MOVE, EditorGUIUtility.IconContent("MoveTool"), new GUIStyle("miniButtonMid"), GUILayout.Height(20)))
 			{
 				if ((this.m_tool & RTool.MOVE) == RTool.MOVE)
 					this.m_tool &= RTool.MOVE;
 				else
-					this.m_tool |= RTool.MOVE; 
+					this.m_tool |= RTool.MOVE;
 				Tools.hidden = true;
 			}
 
+			//PS:
+			//I did not a Icon like look a curve bezier, so i had using this dot icon as icon for bezier
+			//If you found a icon like look bezier, send a message or modify this script
 			if(this.ButtonToggle((this.m_tool & RTool.BEZIER) == RTool.BEZIER, EditorGUIUtility.IconContent("sv_icon_dot8_sml"), new GUIStyle("miniButtonMid"), GUILayout.Height(20)))
 			{
 				if ((this.m_tool & RTool.BEZIER) == RTool.BEZIER)
 					this.m_tool &= RTool.BEZIER;
 				else
-					this.m_tool |= RTool.BEZIER; 
+					this.m_tool |= RTool.BEZIER;
 				Tools.hidden = true;
 			}
 
@@ -193,7 +211,6 @@ namespace WayPointEditor
 				this.m_tool = RTool.SETTINGS;
 				Tools.hidden = false;
 			}
-
 			GUILayout.EndHorizontal();
 			this.Separator();
 		}
@@ -227,7 +244,7 @@ namespace WayPointEditor
 				else
 				{
 					point.tangentL = this.Vector3Field("TangentL", point.tangentL);
-					point.tangentR = this.Vector3Field("TangentR", point.tangentR);	
+					point.tangentR = this.Vector3Field("TangentR", point.tangentR);
 				}
 				GUILayout.BeginHorizontal (new GUIStyle("box"));
 				point.uniqueTangent = GUILayout.Toggle (point.uniqueTangent, "Unique Tangent");
@@ -246,13 +263,14 @@ namespace WayPointEditor
 			this.m_waypoint.pointColor = EditorGUILayout.ColorField ("Point Color", this.m_waypoint.pointColor);
 			this.m_waypoint.selectedPointColor = EditorGUILayout.ColorField ("Selected Point Color", this.m_waypoint.selectedPointColor);
 			this.m_waypoint.drawTrailGizmos = EditorGUILayout.Toggle ("Draw Trail Gizmos", this.m_waypoint.drawTrailGizmos);
-			this.m_waypoint.completeCurve = EditorGUILayout.Toggle ("Complete Curve", this.m_waypoint.completeCurve);
+			this.m_waypoint.completeTrail = EditorGUILayout.Toggle ("Complete Trail", this.m_waypoint.completeTrail);
 			this.m_waypoint.drawTrailAA = EditorGUILayout.Toggle ("Draw TrailAA", this.m_waypoint.drawTrailAA);
 			this.m_waypoint.trailAAWidth = EditorGUILayout.IntField ("TrailAA Width", this.m_waypoint.trailAAWidth);
 			this.m_waypoint.trailDetailLevel = EditorGUILayout.IntSlider ("Trail Detail Level", this.m_waypoint.trailDetailLevel, 0, 100);
 			GUILayout.EndVertical ();
 		}
 
+		//A Sample Separator
 		private void Separator()
 		{
 			GUILayout.Box("", new GUIStyle("IN Title"), GUILayout.ExpandWidth(true), GUILayout.Height(1));
@@ -282,15 +300,19 @@ namespace WayPointEditor
 				}
 				GUILayout.Space(5);
 				GUILayout.EndVertical();
+				//This is important to save change of WaypointData to Asset
 				EditorUtility.SetDirty (this.m_waypoint.waypointData);
 
+				//Modifying Unity Commands to this Code
 				if(evt.type == EventType.ValidateCommand)
 				{
+					//Here duplicate selected point in List
 					if(evt.commandName == "Duplicate")
 					{
 						this.OnAddPoint (this.m_relist);
 						evt.Use ();
 					}
+					//Here delete selected point in List
 					else if(evt.commandName == "SoftDelete")
 					{
 						this.OnRemovePoint (this.m_relist);
@@ -307,6 +329,7 @@ namespace WayPointEditor
 		#endregion
 
 		#region HANDLES
+		//Draw Point of Waypoint
 		Point HandleDrawPoint(int index, Point point, Vector3 cameraPos, bool selected)
 		{
 			Event evt = Event.current;
@@ -314,19 +337,19 @@ namespace WayPointEditor
 			///Scale of Handles in Scene
 			float handleScale = (cameraPos - point.position).magnitude / 50f;
 
-			//IF Shift you can active FreeMove like Editor
+			//if Shift you can active FreeMove like Editor
 			if(evt.shift)
 			{
 				if(selected)
 				{
 					//Drawing Free Move Handle
-					if ((this.m_tool & RTool.MOVE) == RTool.MOVE) 
+					if ((this.m_tool & RTool.MOVE) == RTool.MOVE)
 					{
 						point.position = Handles.FreeMoveHandle (point.position, Quaternion.identity, handleScale, Vector3.one, Handles.CircleHandleCap);
-					} 
+					}
 
 					//Drawing Free Bezier Handle
-					if ((this.m_tool & RTool.BEZIER) == RTool.BEZIER) 
+					if ((this.m_tool & RTool.BEZIER) == RTool.BEZIER)
 					{
 						if(point.uniqueTangent)
 						{
@@ -346,7 +369,7 @@ namespace WayPointEditor
 				}
 				else
 				{
-					//Drawing SphereButton to Select Points 
+					//Drawing SphereButton to Select Points
 					if(Handles.Button (point.position, Quaternion.identity, handleScale, handleScale, Handles.SphereHandleCap))
 					{
 						this.m_index = index;
@@ -361,13 +384,13 @@ namespace WayPointEditor
 				if(selected)
 				{
 					//Drawing Move Handle
-					if ((this.m_tool & RTool.MOVE) == RTool.MOVE)  
+					if ((this.m_tool & RTool.MOVE) == RTool.MOVE)
 					{
 						point.position = Handles.DoPositionHandle (point.position, Quaternion.identity);
-					} 
+					}
 
 					//Drawing Bezier Handle
-					if ((this.m_tool & RTool.BEZIER) == RTool.BEZIER) 
+					if ((this.m_tool & RTool.BEZIER) == RTool.BEZIER)
 					{
 						if(point.uniqueTangent)
 						{
@@ -402,7 +425,7 @@ namespace WayPointEditor
 			return point;
 		}
 
-		//Function Callback to DrawCurve in WaypointUtilty
+		//Method Callback to DrawCurve in WaypointUtilty
 		private void DrawLine(Vector3 pointA, Vector3 pointB)
 		{
 			if(this.m_waypoint.drawTrailAA)
@@ -415,9 +438,7 @@ namespace WayPointEditor
 			}
 		}
 
-		/// <summary>
 		/// Function to Draw Handles in Scene
-		/// </summary>
 		private void OnSceneGUI()
 		{
 			Event evt = Event.current;
@@ -426,12 +447,12 @@ namespace WayPointEditor
 			{
 				Handles.color = this.m_waypoint.trailColor;
 				///Draw Curves
-				for (int i = 0; i < this.m_waypoint.waypointData.length; i++) 
+				for (int i = 0; i < this.m_waypoint.waypointData.length; i++)
 				{
 					//Drawing a last Curve from Last Point to a FirstPoint
 					if(i == this.m_waypoint.waypointData.length - 1)
 					{
-						if(this.m_waypoint.completeCurve)
+						if(this.m_waypoint.completeTrail)
 							WaypointUtility.DrawCurve(this.m_waypoint.TransformPoint(this.m_waypoint.waypointData[i + 0]), this.m_waypoint.TransformPoint(this.m_waypoint.waypointData[0 + 0]), this.m_waypoint.trailDetailLevel, this.DrawLine);
 					}
 					else
@@ -461,7 +482,7 @@ namespace WayPointEditor
 				{
 					if(evt.commandName == "Duplicate")
 					{
-						this.OnAddPoint (this.m_relist);	
+						this.OnAddPoint (this.m_relist);
 						evt.Use ();
 					}
 					else if(evt.commandName == "SoftDelete")
@@ -499,14 +520,19 @@ namespace WayPointEditor
 			return Path.Combine (path, "WayPointData.asset");
 		}
 
+		//Method to Create WayPointData in Asset
 		[MenuItem("Waypoint/WaypointData")]
 		private static void CreateWaypointData ()
 		{
+			//Get WaypointData name
+			//Because in folder can contain more WaypointDatas
+			//I really i dont know if there's a method to do it
 			string path = GetNameAsset();
 			WaypointData data = ScriptableObject.CreateInstance<WaypointData>();
 			AssetDatabase.CreateAsset(data, path);
 		}
 
+		//Method to Create WaypointManager in Scene
 		[MenuItem("Waypoint/WaypointManager")]
 		private static void CreateWaypoint ()
 		{

@@ -1,7 +1,5 @@
-﻿/// Author: Paulo Camacan (N0bode)
-/// License: GNU
-/// Last Modified: 02/16/18
-/// Unity Version: 5.6.2f1 Personal
+/// Author: Paulo Camacan (N0bode)
+/// Unity Version: 5.6.2f1
 
 using System.Collections;
 using System.Collections.Generic;
@@ -41,7 +39,7 @@ namespace WayPoint
 			this.name = point.name;
 			this.id = point.id;
 		}
-			
+
 		public Point(Vector3 pos)
 		{
 			this.position = pos;

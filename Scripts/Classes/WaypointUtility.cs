@@ -1,7 +1,5 @@
-﻿/// Author: Paulo Camacan (N0bode)
-/// License: GNU
-/// Last Modified: 02/16/18
-/// Unity Version: 5.6.2f1 Personal
+/// Author: Paulo Camacan (N0bode)
+/// Unity Version: 5.6.2f1
 
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +7,7 @@ using UnityEngine;
 
 namespace WayPoint
 {
-	
+
 	public static class WaypointUtility
 	{
 		//Delegate to Draw the Curve
@@ -18,7 +16,7 @@ namespace WayPoint
 		private static float Pow(float num, int exp)
 		{
 			return Mathf.Pow(num, exp);
-		
+
 		}
 
 		/// <summary>
@@ -32,7 +30,7 @@ namespace WayPoint
 		/// <param name="time">Time.</param>
 		public static Vector3 QuadraticBezier(Vector3 posA, Vector3 tan, Vector3 posB, float time)
 		{
-			return Pow(1 - time, 2) * posA + 2 * time * (1 - time) * tan + Pow(time, 2) * posB; 
+			return Pow(1 - time, 2) * posA + 2 * time * (1 - time) * tan + Pow(time, 2) * posB;
 		}
 
 		/// <summary>
@@ -47,9 +45,9 @@ namespace WayPoint
 		/// <param name="time">Time.</param>
 		public static Vector3 CubicBezier(Vector3 posA, Vector3 tanA, Vector3 tanB, Vector3 posB, float time)
 		{
-			return Pow(1 - time, 3) * posA + 3 * time * Pow(1 - time, 2) * tanA + 3 * Pow(time, 2) * (1 - time) * tanB + Pow(time, 3) * posB; 
+			return Pow(1 - time, 3) * posA + 3 * time * Pow(1 - time, 2) * tanA + 3 * Pow(time, 2) * (1 - time) * tanB + Pow(time, 3) * posB;
 		}
-			
+
 		/// <summary>
 		/// Draws the bezier curve
 		/// </summary>
@@ -82,4 +80,3 @@ namespace WayPoint
 		}
 	}
 }
-

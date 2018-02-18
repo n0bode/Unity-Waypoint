@@ -1,7 +1,5 @@
 ﻿/// Author: Paulo Camacan (N0bode)
-/// License: GNU
-/// Last Modified: 02/16/18
-/// Unity Version: 5.6.2f1 Personal
+/// Unity Version: 5.6.2f1
 
 using System.Collections;
 using System.Collections.Generic;
@@ -9,10 +7,11 @@ using UnityEngine;
 
 namespace WayPoint
 {
+	[AddComponentMenu("Waypoint/WaypointManager")]
 	public class WaypointManager : MonoBehaviour
 	{
 		public WaypointData waypointData;
-		public bool completeCurve = true;
+		public bool completeTrail = true;
 		public bool drawTrailAA = true;
 		public bool drawTrailGizmos = true;
 		[HideInInspector]
@@ -25,11 +24,11 @@ namespace WayPoint
 		public Color tangentColor = Color.HSVToRGB (145, 73, 96);
 
 		// Use this for initialization
-		void Start () 
+		void Start ()
 		{
-			
+
 		}
-			
+
 		private int NormalizeIndex (int index, bool loop)
 		{
 			if (index == this.waypointData.length)
@@ -57,19 +56,23 @@ namespace WayPoint
 			int len = loop ? this.waypointData.length : this.waypointData.length - 1;
 			int i0 = this.NormalizeIndex(Mathf.FloorToInt (factor * len), loop);
 			int i1 = this.NormalizeIndex(i0 + 1, loop);
+			//This is like: (currentIndexPoint - lastIndexPoint) / (nextIndexPoint - lastIndexPoint)
+			//currentIndexPoint = factor * lengthWaypoint
+			//lastIndexPoint = floor(factor * lengthWaypoint)
+			//nextIndexPoint = lastIndexPoint + 1
 			float time = (factor * len) % 1;
 
 			Point p0 = this.TransformPoint(this.waypointData [i0]);
-			Point p1 = this.TransformPoint(this.waypointData [i1]); 
+			Point p1 = this.TransformPoint(this.waypointData [i1]);
 			Vector3 tan0 = p0.position + (p0.uniqueTangent ? p0.tangent : p0.tangentR);
 			Vector3 tan1 = p1.position + (p1.uniqueTangent ? -p1.tangent : p1.tangentL);
 			return WaypointUtility.CubicBezier (p0.position, tan0, tan1, p1.position, time);
 		}
 
 		/// <summary>
-		/// Gets the position on trail based on Factor
+		/// Gets the world space on trail based on Factor like in a Curve
 		/// </summary>
-		/// <returns>The position on trail.</returns>
+		/// <returns>World Space</returns>
 		/// <param name="fractor">Fractor.</param>
 		/// <param name="loop">If set to <c>true</c> loop.</param>
 		public Vector3 GetPositionOnTrail(float fractor, bool loop=true)
@@ -115,7 +118,7 @@ namespace WayPoint
 		{
 			if (!this.drawTrail || this.trailDetailLevel == 0 || !this.drawTrailGizmos)
 				return;
-			
+
 			if(this.waypointData != null && Event.current.type == EventType.Repaint)
 			{
 				Gizmos.color = this.trailColor;
@@ -124,7 +127,7 @@ namespace WayPoint
 				{
 					if(i == this.waypointData.length - 1)
 					{
-						if(this.completeCurve)
+						if(this.completeTrail)
 							WaypointUtility.DrawCurve(this.TransformPoint(this.waypointData[i + 0]), this.TransformPoint(this.waypointData[0 + 0]), this.trailDetailLevel, Gizmos.DrawLine);
 					}
 					else

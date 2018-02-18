@@ -1,7 +1,5 @@
-﻿/// Author: Paulo Camacan (N0bode)
-/// License: GNU
-/// Last Modified: 02/16/18
-/// Unity Version: 5.6.2f1 Personal
+/// Author: Paulo Camacan (N0bode)
+/// Unity Version: 5.6.2f1
 
 using System.Collections;
 using System.Collections.Generic;
@@ -22,7 +20,7 @@ namespace WayPoint
 		/// Return the length of this data
 		/// </summary>
 		/// <value>length of list of points</value>
-		public int length 
+		public int length
 		{
 			get{ return this.m_points.Length; }
 		}
@@ -97,7 +95,7 @@ namespace WayPoint
 				this.m_points[i] = saved[i + jump];
 			}
 		}
-			
+
 		public void RemovePoint(int index)
 		{
 			Point[] saved = this.m_points;
