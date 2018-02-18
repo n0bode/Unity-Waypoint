@@ -5,7 +5,7 @@ This an OpenSource WayPoint for Unity3D
 ## Instructions:  
 * Select WayPoint/WayPointManager in top bar to create a WayPoint Manager
 * Select WayPoint/WayPointData in top bar to create a Waypoint Data
-* Creating a WayPoint agent, must there be a object selected in Scene, then just Add Component in Waypoint/Waypoint Agent
+* Creating a WayPoint agent, there must be a object selected in Scene, then just Add Component in Waypoint/Waypoint Agent
 
 ## How to edit the Points:
 ### Here is all tools necessary for you edit the points
