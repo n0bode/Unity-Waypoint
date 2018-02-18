@@ -11,10 +11,10 @@ This an OpenSource WayPoint for Unity3D
 ### Here is all tools necessary for you edit the points
 ![alt text](toolbar.png "Toolbar")
 
-* View you can look the point
+* View you can look waypoint
 * Move you can move point
 * Bezier you can edit tangents of point
-* Settings is Settings
+* Settings is Settings :trollface:
 
 ### When Move mode or/and Bezier mode are selected
 * Hold Shift: Edit selected Point freely in SceneView
