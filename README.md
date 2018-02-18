@@ -1,12 +1,21 @@
 # Unity Waypoint
-Unity Waypoint
 
 This an OpenSource WayPoint for Unity3D
 
-## Instructions:
+## Instructions:  
 * Select WayPoint/WayPointManager in top bar to create a WayPoint Manager
 * Select WayPoint/WayPointData in top bar to create a Waypoint Data
+* Creating a WayPoint agent, must there be a object selected in Scene, then just Add Component in Waypoint/Waypoint Agent
 
-## Tips:
-* Hold Shift: Move selected Point freely in SceneView
+## How to edit points:
+### Here is all tools necessary for you edit the points
+<img src="https://github.com/n0bode/Waypoint/raw/master/toolbar.png">
+```View, Move, Bezier, Settings respectively```
+* With view you can look the point
+* Move you can move point
+* Bezier you can edit tangents of point
+* Settings is Settings
+
+### When Move mode or/and Bezier mode are selected
+* Hold Shift: Edit selected Point freely in SceneView
 * Control + D: Duplicate selected Point
