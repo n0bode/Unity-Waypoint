@@ -9,7 +9,7 @@ This an OpenSource WayPoint for Unity3D
 
 ## How to edit points:
 ### Here is all tools necessary for you edit the points
-![alt text](toolbar.png "Toolbar)
+![alt text](toolbar.png "Toolbar")
 
 * View you can look the point
 * Move you can move point
