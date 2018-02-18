@@ -9,9 +9,9 @@ This an OpenSource WayPoint for Unity3D
 
 ## How to edit points:
 ### Here is all tools necessary for you edit the points
-<img src="https://github.com/n0bode/Waypoint/raw/master/toolbar.png" />
+![alt text](toolbar.png "Toolbar)
 
-* With view you can look the point
+* View you can look the point
 * Move you can move point
 * Bezier you can edit tangents of point
 * Settings is Settings
